@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task List</title>
+  <style>
+     body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    .task-list-container {
+      margin: 20px;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      margin-bottom: 20px;
+    }
+    .header-buttons {
+      display: flex;
+      gap: 99px;
+      margin-bottom: 10px;
+    }
+    /* Style for the search bar section */
+    .search-container {
+      position: relative;
+      width: 100%; /* Ensure the input takes up the full width */
+      max-width: 250px; /* Adjust as needed */
+    }
+    .search-container input {
+      width: 212px;
+      padding: 8px 12px 8px 32px; /* Add padding to make room for the icon */
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .search-container .search-icon {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #888;
+    }
+    .task-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .task-table th, .task-table td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    .task-table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    .task-table td {
+      color: #333;
+    }
+
+    .task-table td button {
+      background-color: orange;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .task-table td button:hover {
+      background-color: darkorange;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .pagination input {
+      width: 50px;
+      padding: 5px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .pagination button {
+      padding: 8px 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .pagination button:disabled {
+      background-color: #ccc;
+    }
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+   
+    
+    h4{
+     width: 50px;
+     height: 9px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="task-list-container">
+  <div style="width: 30px;" >
+  <h4 >Tasks</h4>
+</div>
+
+<div style="width: 30px; float: left; ;">
+  <h5>All Tasks</h5>
+</div>
+
+  <div class="header">
+    
+    <div class="header-buttons">
+ 
+      <!-- New Task and Refresh Buttons -->
+      <button [routerLink]="['/add']" style="color: orange;">New Task</button>
+      <button (click)="getTasks()" style="color: orange;">Refresh</button>
+    </div>
+ 
+    <!-- Search Bar with Icon -->
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search" [(ngModel)]="searchTerm" (input)="filterTasks()">
+    </div>
+  </div>
+
+  <table class="task-table">
+    <thead>
+      <tr>
+        <th>Assigned To</th>
+        <th>Status</th>
+        <th>Due Date</th>
+        <th>Priority</th>
+        <th>Comments</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let task of filteredTasks">
+        <td style="color: green;">{{ task.assignedTo }}</td>
+        <td>{{ task.status }}</td>
+        <td>{{ task.dueDate }}</td>
+        <td>{{ task.priority }}</td>
+        <td>{{ task.comments }}</td>
+        <td>
+          <button (click)="editTask(task.id)">Edit</button>
+          <button (click)="confirmDelete(task)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <input type="number" min="1" max="{{totalPages}}" [(ngModel)]="currentPage" (ngModelChange)="goToPage($event)">
+    <button (click)="firstPage()" [disabled]="currentPage === 1">First</button>
+    <button (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+    <span>Page {{currentPage}} of {{totalPages}}</span>
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+    <button (click)="lastPage()" [disabled]="currentPage === totalPages">Last</button>
+  </div>
+  <div *ngIf="taskToDelete" class="modal">
+    <div class="modal-content">
+      <h2 class="delete">Delete</h2>
+      <p>Do you want to delete task {{ taskToDelete.name }}?</p>
+      <button (click)="deleteTask()" style="color: orange;">Yes</button>
+  
+      <button (click)="cancelDelete()" style="color: orange;">No</button>
+    </div>
+  
+
+</div>
+
+<!-- Delete Modal -->
+
+</div>  
+
+
+</body>
+</html>
